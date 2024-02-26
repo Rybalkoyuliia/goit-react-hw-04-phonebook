@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import { nanoid } from 'nanoid';
 import PhoneNumber from 'components/PhoneNumber/PhoneNumber';
 import {
@@ -9,89 +9,80 @@ import {
   StyledLabel,
 } from './ContactForm.styled';
 
-export default class ContactForm extends Component {
-  state = {
-    name: '',
-    number: '',
-  };
+const ContactForm = ({ addingContact, contacts }) => {
+  const [data, setData] = useState({ name: '', number: '' });
 
-  handleSubmit = e => {
+  const handleSubmit = e => {
     e.preventDefault();
-    const { name, number } = this.state;
-    const { addingContact, contacts } = this.props;
-    if (name.trim() === '' || number.trim() === '') {
+    if (data.name.trim() === '' || data.number.trim() === '') {
       return;
     }
-    if (contacts.find(person => person.name === name)) {
-      alert(`${name} is already in contacts!`);
+    if (contacts.find(person => person.name === data.name)) {
+      alert(`${data.name} is already in contacts!`);
       return;
     }
-    if (contacts.find(person => person.number === number)) {
-      alert(`${name}'s number "${number}" is already in contacts!`);
+    if (contacts.find(person => person.number === data.number)) {
+      alert(`${data.name}'s number "${data.number}" is already in contacts!`);
       return;
     }
 
-    if (!this.validatePhoneNumber()) {
-      console.log(this.state.number);
-      console.log(this.validatePhoneNumber());
+    if (!validatePhoneNumber(data.number)) {
       alert(`Phone is invalid`);
       return;
     }
 
     addingContact({
       id: nanoid(6),
-      name,
-      number,
+      name: data.name,
+      number: data.number,
     });
-    this.reset();
+    reset();
   };
 
-  handleInput = e => {
+  const handleInput = e => {
     const { name, value } = e.target;
-    this.setState({ [name]: value });
+    setData({ ...data, [name]: value });
   };
 
-  validatePhoneNumber = () => {
+  const validatePhoneNumber = () => {
     const PhoneNumberPattern = new RegExp(
       /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/im
     );
-    return PhoneNumberPattern.test(this.state.number);
+    return PhoneNumberPattern.test(data.number);
   };
 
-  reset = () => {
-    this.setState({
+  const reset = () => {
+    setData({
       name: '',
       number: '',
     });
   };
 
-  render() {
-    const { name, number } = this.state;
+  return (
+    <>
+      <StyledForm
+        onSubmit={e => {
+          handleSubmit(e);
+          validatePhoneNumber(e);
+        }}
+      >
+        <LeftStyledList>
+          <StyledLabel>
+            Name
+            <StyledInput
+              type="text"
+              name="name"
+              value={data.name}
+              onChange={handleInput}
+              required
+            />
+          </StyledLabel>
+          <PhoneNumber number={data.number} handleInput={handleInput} />
+        </LeftStyledList>
+        <StyledButton type="submit">Add contact</StyledButton>
+      </StyledForm>
+    </>
+  );
+};
 
-    return (
-      <>
-        <StyledForm
-          onSubmit={e => {
-            this.handleSubmit(e);
-            this.validatePhoneNumber(e);
-          }}
-        >
-          <LeftStyledList>
-            <StyledLabel>
-              Name
-              <StyledInput
-                type="text"
-                name="name"
-                value={name}
-                onChange={this.handleInput}
-                required
-              />
-            </StyledLabel>
-            <PhoneNumber number={number} handleInput={this.handleInput} />
-          </LeftStyledList>
-          <StyledButton type="submit">Add contact</StyledButton>
-        </StyledForm>
-      </>
-    );
-  }
-}
+export default ContactForm;

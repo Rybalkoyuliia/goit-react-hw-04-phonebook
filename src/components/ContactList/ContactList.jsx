@@ -9,11 +9,10 @@ import {
   StyledNumber,
 } from './ContactList.styled';
 
-export default function ContactList({ contacts, onDelete }) {
-  const contactList = contacts();
+export default function ContactList({ filteredContacts, onDelete }) {
   return (
     <ListWrapper>
-      {contactList.map(({ id = nanoid(6), name, number }) => (
+      {filteredContacts.map(({ id = nanoid(6), name, number }) => (
         <StyledLiWrapper key={id}>
           <SpanWrapper>
             <StyledName>{name}</StyledName>
